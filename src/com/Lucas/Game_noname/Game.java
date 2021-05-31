@@ -1,10 +1,16 @@
 package com.Lucas.Game_noname;
 
 import java.awt.Canvas;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.image.BufferStrategy;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 
 import javax.swing.JFrame;
+
+import com.Lucas.Game_noname.graphics.Screen;
 
 public class Game extends Canvas implements Runnable {
 	private static final long serialVersionUID = 1L;
@@ -17,11 +23,17 @@ public class Game extends Canvas implements Runnable {
 	private JFrame frame;
 	private boolean running = false;
 	
+	private BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+	private int[] pixels = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
+	
+	private Screen screen;
+	
 	public Game() {
 		Dimension size = new Dimension(width*scale, height*scale);
 		setPreferredSize(size);
 		
 		frame = new JFrame();
+		screen = new Screen(width, height);
 	}
 	
 	public synchronized void start() {
@@ -56,6 +68,17 @@ public class Game extends Canvas implements Runnable {
 			createBufferStrategy(3);
 			return;
 		}
+		
+		screen.render();
+		for (int i = 0; i < pixels.length; i++) {
+			pixels[i] = screen.pixels[i];
+		}
+		
+		Graphics g = bs.getDrawGraphics();
+		g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
+		g.dispose();
+		bs.show();
+		
 	}
 	
 	public static void main(String[] args) {
